@@ -176,11 +176,57 @@ resource "null_resource" "create_instance_pool" {
     ]
 }
 
+/*
+//--- Create Instance Pool (not supported by Terraform native API)
+resource "null_resource" "create_instance_pool" { 
+
+    provisioner local-exec {
+
+        command = <<-EOT
+            az sql instance-pool create \
+                --name ${join(local.separator, [var.instance_pool_name, random_uuid.poc.result])} \
+                --capacity ${var.vcore_capacity} \
+                --edition ${var.edition} \
+                --family ${var.compute_generation} \
+                --license-type ${var.license_type} \
+                --location ${azurerm_resource_group.rg.location} \
+                --resource-group ${azurerm_resource_group.rg.name} \
+                --subnet ${azurerm_subnet.subnet.id}
+    EOT
+    }
+
+    // Instance Pool must be created after Network Security Group and Route Table have been configured to its subnet 
+    depends_on = [
+        azurerm_subnet_network_security_group_association.nsg_association,
+        azurerm_subnet_route_table_association.rt_association
+    ]
+}
+
+
 // Create the Managed Instance
 // This resource can't be configured using Terraform Azure provider API
 resource "null_resource" "create_managed_instance" { 
+
   provisioner local-exec {
-    command = "az sql mi create --InstancePoolName ${var.instance_pool_name} --resource-group ${azurerm_resource_group.rg.name} --name ${join(local.separator, [var.managed_instance_name, random_uuid.poc.result])} --location ${azurerm_resource_group.rg.location} --admin-user ${var.admin_user} --admin-password ${var.admin_password} --license-type ${var.mi_license_type} --subnet ${azurerm_subnet.subnet.id} --capacity ${var.mi_vcore_capacity} --storage ${var.storage_gb} --edition ${var.mi_edition} --family ${var.mi_compute_generation} --proxy-override ${local.connection_type} --minimal-tls-version ${local.tls_version} --public-data-endpoint-enabled ${local.public-data-endpoint-enabled}"
+
+    command = <<-EOT
+        az sql mi create \
+            --InstancePoolName ${var.instance_pool_name} \
+            --resource-group ${azurerm_resource_group.rg.name} \
+            --name ${join(local.separator, [var.managed_instance_name, random_uuid.poc.result])} \
+            --location ${azurerm_resource_group.rg.location} \
+            --admin-user ${var.admin_user} \
+            --admin-password ${var.admin_password} \
+            --license-type ${var.mi_license_type} \
+            --subnet ${azurerm_subnet.subnet.id} \
+            --capacity ${var.mi_vcore_capacity} \
+            --storage ${var.storage_gb} \
+            --edition ${var.mi_edition} \
+            --family ${var.mi_compute_generation} \
+            --proxy-override ${local.connection_type} \
+            --minimal-tls-version ${local.tls_version} \
+            --public-data-endpoint-enabled ${local.public-data-endpoint-enabled}
+    EOT
   }
 }
 
@@ -188,13 +234,20 @@ resource "null_resource" "create_managed_instance" {
 resource "null_resource" "create_managed_database" { 
 
   provisioner local-exec {
-    command = "az sql midb create --managed-instance ${join(local.separator, [var.managed_instance_name, random_uuid.poc.result])} --name ${var.managed_database_name} --resource-group ${azurerm_resource_group.rg.name}"
+
+    command = <<-EOT
+        az sql midb create \
+            --name ${var.managed_database_name} \
+            --managed-instance ${join(local.separator, [var.managed_instance_name, random_uuid.poc.result])} \
+            --resource-group ${azurerm_resource_group.rg.name}
+    EOT
   }
 
   depends_on = [
     null_resource.create_managed_instance
   ]
 }
+*/
 
 /*
 //--- Create Instance Pool (not supported by Terraform native API)
