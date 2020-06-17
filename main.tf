@@ -163,18 +163,6 @@ resource "azurerm_virtual_network_peering" "vnet-managed-instance-peering" {
   remote_virtual_network_id = azurerm_virtual_network.vnet_test.id
 }
 
-//--- Create Instance Pool (not supported by Terraform native API)
-resource "null_resource" "create_instance_pool" { 
-    provisioner local-exec {
-        command = "az sql instance-pool create --name ${join(local.separator, [var.instance_pool_name, random_uuid.poc.result])} --capacity ${var.vcore_capacity} --edition ${var.edition} --family ${var.compute_generation} --license-type ${var.license_type} --location ${azurerm_resource_group.rg.location} --resource-group ${azurerm_resource_group.rg.name} --subnet ${azurerm_subnet.subnet.id}"
-    }
-
-    // Instance Pool must be created after Network Security Group and Route Table have been configured to its subnet 
-    depends_on = [
-        azurerm_subnet_network_security_group_association.nsg_association,
-        azurerm_subnet_route_table_association.rt_association
-    ]
-}
 
 /*
 //--- Create Instance Pool (not supported by Terraform native API)
