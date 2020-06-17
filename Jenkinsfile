@@ -1,4 +1,7 @@
 pipeline {
+	options {
+        timeout(time: 6, unit: 'HOURS') 
+    }
     parameters {
         choice(
             choices: ['create', 'destroy'],
@@ -93,7 +96,7 @@ pipeline {
         stage('Clean WorkSpace') {
             steps {
                 echo "Wiping workspace $pwd"
-            
+                cleanWs() 
             }
         }
     }
