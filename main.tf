@@ -216,6 +216,10 @@ resource "null_resource" "create_managed_instance" {
             --public-data-endpoint-enabled ${local.public-data-endpoint-enabled}
     EOT
   }
+    // Managed Instance must be created after Instance Pool have been configured 
+    depends_on = [
+        null_resource.create_instance_pool
+    ] 
 }
 
 // Create a Managed Database for testing purposes
