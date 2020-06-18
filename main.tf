@@ -162,7 +162,7 @@ resource "azurerm_virtual_network_peering" "vnet-managed-instance-peering" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   remote_virtual_network_id = azurerm_virtual_network.vnet_test.id
 }
-
+/*
 //--- Create Instance Pool (not supported by Terraform native API)
 resource "null_resource" "create_instance_pool" { 
 
@@ -187,7 +187,7 @@ resource "null_resource" "create_instance_pool" {
         azurerm_subnet_route_table_association.rt_association
     ]
 }
-
+*/
 //--- Create Virtual Machine with Azure Data Studio to test connectivity to the instance/database
 //ip
 resource "azurerm_public_ip" "ip" {
